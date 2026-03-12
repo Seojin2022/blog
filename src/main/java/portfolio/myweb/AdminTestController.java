@@ -1,0 +1,18 @@
+package portfolio.myweb;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AdminTestController {
+
+    @GetMapping("/api/admin/ping")
+    public String adminPing() {
+        return "admin ok";
+    }
+
+    @GetMapping("/api/public/ping")
+    public String publicPing() {
+        return "public ok";
+    }
+}
