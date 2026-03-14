@@ -15,8 +15,14 @@ public class PostController {
     private final PostRepository postRepository;
 
     @GetMapping
-    public List<Post> getPosts() {
-        return postRepository.findAll();
+    public List<Post> getPosts(@RequestParam(required = false) Integer limit) {
+        List<Post> posts = postRepository.findAll();
+
+        if (limit != null && limit < posts.size()) {
+            return posts.subList(0, limit);
+        }
+
+        return posts;
     }
 
     @GetMapping("/{slug}")
@@ -24,4 +30,6 @@ public class PostController {
         return postRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
+
+
 }

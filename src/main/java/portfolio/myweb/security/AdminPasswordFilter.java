@@ -4,9 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -21,31 +18,28 @@ public class AdminPasswordFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (HttpMethod.OPTIONS.matches(req.getMethod())) {
-            chain.doFilter(req, res);
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        String path = req.getRequestURI();
+        String uri = request.getRequestURI();
 
-        // /api/admin/** 만 비밀번호 검사
-        if (!path.startsWith("/api/admin")) {
-            chain.doFilter(req, res);
-            return;
+        // 관리자 API만 검사
+        if (uri.startsWith("/api/admin")) {
+            String password = request.getHeader("X-Admin-Password");
+
+            if (password == null || !password.equals(adminPassword)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
         }
 
-        String provided = req.getHeader(HEADER_NAME);
-
-        if (provided == null || provided.isBlank() || !provided.equals(adminPassword)) {
-            res.setStatus(HttpStatus.UNAUTHORIZED.value());
-            res.setContentType("application/json; charset=utf-8");
-            res.getWriter().write("{\"message\":\"Unauthorized\"}");
-            return;
-        }
-
-        chain.doFilter(req, res);
+        filterChain.doFilter(request, response);
     }
 }
