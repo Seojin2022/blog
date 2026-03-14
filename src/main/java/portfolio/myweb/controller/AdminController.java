@@ -7,6 +7,9 @@ import portfolio.myweb.domain.Category;
 import portfolio.myweb.domain.Post;
 import portfolio.myweb.repository.CategoryRepository;
 import portfolio.myweb.repository.PostRepository;
+import portfolio.myweb.service.SettingService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -15,9 +18,20 @@ public class AdminController {
 
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final SettingService settingService;
 
     @GetMapping("/check")
     public ResponseEntity<Void> check() {
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/settings")
+    public ResponseEntity<Void> saveSettings(@RequestBody Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
+        Map<String, String> settings = (Map<String, String>) body.get("settings");
+        if (settings != null) {
+            settingService.saveAll(settings);
+        }
         return ResponseEntity.ok().build();
     }
 
