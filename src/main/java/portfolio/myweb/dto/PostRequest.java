@@ -12,3 +12,4 @@ public class PostRequest {
     private String thumbnail;
     private Long categoryId;
 }
+

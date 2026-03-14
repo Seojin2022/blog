@@ -29,7 +29,7 @@ public class AdminController {
         findPost.setSlug(post.getSlug());
         findPost.setContent(post.getContent());
         findPost.setThumbnail(post.getThumbnail());
-        findPost.setCategory(post.getCategory());
+        findPost.setCategoryId(post.getCategoryId());
 
         return postRepository.save(findPost);
     }
