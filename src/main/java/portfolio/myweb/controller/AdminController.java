@@ -1,6 +1,7 @@
 package portfolio.myweb.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import portfolio.myweb.domain.Category;
 import portfolio.myweb.domain.Post;
@@ -14,6 +15,11 @@ public class AdminController {
 
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+
+    @GetMapping("/check")
+    public ResponseEntity<Void> check() {
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/posts")
     public Post createPost(@RequestBody Post post) {
