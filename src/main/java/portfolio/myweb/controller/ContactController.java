@@ -1,59 +1,46 @@
 package portfolio.myweb.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import portfolio.myweb.domain.Otp;
-import portfolio.myweb.repository.OtpRepository;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Random;
+import portfolio.myweb.dto.ContactRequest;
+import portfolio.myweb.service.MailService;
 
 @RestController
 @RequestMapping("/api/contact")
 @RequiredArgsConstructor
 public class ContactController {
 
-    private final OtpRepository otpRepository;
+    private final MailService mailService;
 
-    // 이메일 OTP 발송
-    @PostMapping("/verify-email")
-    public String sendOtp(@RequestBody Map<String, String> body) {
+    @PostMapping
+    public ResponseEntity<String> sendContact(@RequestBody ContactRequest request) {
 
-        String email = body.get("email");
-
-        String code = String.valueOf(100000 + new Random().nextInt(900000));
-
-        Otp otp = new Otp();
-        otp.setEmail(email);
-        otp.setCode(code);
-        otp.setExpiresAt(LocalDateTime.now().plusMinutes(10));
-
-        otpRepository.save(otp);
-
-        System.out.println("OTP CODE: " + code);
-
-        return "OTP 전송 완료 (콘솔 확인)";
-    }
-
-    // OTP 검증
-    @PostMapping("/verify-otp")
-    public String verifyOtp(@RequestBody Map<String, String> body) {
-
-        String email = body.get("email");
-        String code = body.get("otp");
-
-        Otp otp = otpRepository.findById(email)
-                .orElseThrow(() -> new RuntimeException("OTP 없음"));
-
-        if (!otp.getCode().equals(code)) {
-            throw new RuntimeException("OTP 틀림");
+        if (request.getName() == null || request.getName().isBlank()) {
+            return ResponseEntity.badRequest().body("이름을 입력해주세요.");
         }
 
-        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP 만료");
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body("이메일을 입력해주세요.");
         }
 
-        return "인증 성공";
+        if (!request.getEmail().contains("@")) {
+            return ResponseEntity.badRequest().body("올바른 이메일 형식이 아닙니다.");
+        }
+
+        if (request.getSubject() == null || request.getSubject().isBlank()) {
+            return ResponseEntity.badRequest().body("제목을 입력해주세요.");
+        }
+
+        if (request.getMessage() == null || request.getMessage().isBlank()) {
+            return ResponseEntity.badRequest().body("내용을 입력해주세요.");
+        }
+
+        if (request.getMessage().length() > 2000) {
+            return ResponseEntity.badRequest().body("내용은 2000자 이하로 입력해주세요.");
+        }
+
+        mailService.sendContactMail(request);
+        return ResponseEntity.ok("문의가 전송되었습니다.");
     }
 }
