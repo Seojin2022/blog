@@ -1,14 +1,18 @@
 package portfolio.myweb.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import portfolio.myweb.domain.Category;
 import portfolio.myweb.domain.Post;
 import portfolio.myweb.repository.CategoryRepository;
 import portfolio.myweb.repository.PostRepository;
+import portfolio.myweb.service.FileService;
 import portfolio.myweb.service.SettingService;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -19,6 +23,7 @@ public class AdminController {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final SettingService settingService;
+    private final FileService fileService;
 
     @GetMapping("/check")
     public ResponseEntity<Void> check() {
@@ -80,5 +85,19 @@ public class AdminController {
     public String deleteCategory(@PathVariable Long id) {
         categoryRepository.deleteById(id);
         return "삭제 완료";
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+        // 인증은 AdminPasswordFilter에서 X-Admin-Password 헤더로 처리됨
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("파일이 없습니다.");
+        }
+        try {
+            String url = fileService.saveAndReturnUrl(file);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 저장 실패");
+        }
     }
 }
