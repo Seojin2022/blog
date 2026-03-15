@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import portfolio.myweb.dto.ContactRequest;
-import portfolio.myweb.service.MailService;
+import portfolio.myweb.service.ResendMailService;
 
 @RestController
 @RequestMapping("/api/contact")
 @RequiredArgsConstructor
 public class ContactController {
 
-    private final MailService mailService;
+    private final ResendMailService resendMailService;
 
     @PostMapping
     public ResponseEntity<String> sendContact(@RequestBody ContactRequest request) {
@@ -41,7 +41,7 @@ public class ContactController {
         }
 
         try {
-            mailService.sendContactMail(request);
+            resendMailService.sendContactMail(request);
             return ResponseEntity.ok("문의가 전송되었습니다.");
         } catch (Exception e) {
             e.printStackTrace();
