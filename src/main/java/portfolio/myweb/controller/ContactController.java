@@ -40,7 +40,13 @@ public class ContactController {
             return ResponseEntity.badRequest().body("내용은 2000자 이하로 입력해주세요.");
         }
 
-        mailService.sendContactMail(request);
-        return ResponseEntity.ok("문의가 전송되었습니다.");
+        try {
+            mailService.sendContactMail(request);
+            return ResponseEntity.ok("문의가 전송되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body("메일 전송 실패: " + e.getMessage());
+        }
     }
 }

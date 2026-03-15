@@ -16,13 +16,9 @@ public class MailService {
     @Value("${app.contact.to}")
     private String contactTo;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
     public void sendContactMail(ContactRequest request) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(contactTo);
-        message.setFrom(fromEmail);
         message.setReplyTo(request.getEmail());
         message.setSubject("[Portfolio Contact] " + request.getSubject());
         message.setText(
