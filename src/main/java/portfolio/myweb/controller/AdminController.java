@@ -96,8 +96,15 @@ public class AdminController {
         try {
             String url = fileService.saveAndReturnUrl(file);
             return ResponseEntity.ok(Map.of("url", url));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 저장 실패");
+        } catch (Exception e) {
+            // 업로드 실패 원인을 빠르게 파악하기 위해 예외 타입/메시지만 노출합니다.
+            // (스택트레이스나 민감정보는 Render 로그에 남기는 편이 안전합니다.)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of(
+                            "error", e.getClass().getSimpleName(),
+                            "message", e.getMessage()
+                    )
+            );
         }
     }
 }
